@@ -1,5 +1,13 @@
 # Remember Tabs
 
+[![Latest release](https://img.shields.io/github/v/release/gisulan/remember-tabs-chrome-ext?label=stable%20version)](https://github.com/gisulan/remember-tabs-chrome-ext/releases/latest)
+
+> ### ⬇️ [Download the latest stable version](https://github.com/gisulan/remember-tabs-chrome-ext/releases/latest)
+> On the release page, download **`remember-tabs-vX.Y.Z.zip`** from **Assets**.
+> **Don't** use the green **Code → Download ZIP** button or *Source code (zip)*. Those contain the development version, which may be unfinished.
+>
+> What's new in each version: [CHANGELOG](CHANGELOG.md). To hear about new versions, click **Watch → Custom → Releases** at the top of this page.
+
 A browser extension for **Edge, Brave and Chrome** that remembers your tabs and tab groups.
 
 - **Last session:** after the browser or computer restarts, everything you had open is listed, ready to reopen. You can reopen all of it, one window, one group, or single tabs. Nothing reopens on its own.
@@ -16,7 +24,7 @@ Everything lives in a side panel: click the extension's icon to open it.
 
 It takes about 2 minutes, and you only do it once per browser.
 
-1. Download **`remember-tabs-vX.Y.Z.zip`** from the [latest release](../../releases/latest).
+1. Download **`remember-tabs-vX.Y.Z.zip`** from the [latest release](https://github.com/gisulan/remember-tabs-chrome-ext/releases/latest).
 2. Unzip it and move the `remember-tabs` folder somewhere permanent, such as `Documents/remember-tabs`.
    ⚠️ The browser runs the extension from this folder. If you delete or move the folder, the extension stops working.
    **Windows:** right-click the zip → **Extract All**. You can't load it straight from the zip. Extracting creates `remember-tabs-v1.0.0\remember-tabs\`. Use the inner `remember-tabs` folder, the one with `manifest.json` in it.
@@ -48,7 +56,7 @@ To move your groups to another browser or computer, install the extension there,
 
 ## Update to a new version
 
-1. Download the new zip from [Releases](../../releases/latest).
+1. Download the new zip from [Releases](https://github.com/gisulan/remember-tabs-chrome-ext/releases/latest). The [CHANGELOG](CHANGELOG.md) lists what's new.
 2. Replace the **contents** of your existing `remember-tabs` folder with the new files.
 3. On the extensions page, click the **reload ↻** icon on the Remember Tabs card.
 
@@ -82,10 +90,17 @@ Your saved groups and sessions are kept. **Don't** click *Remove* to update: rem
 
 The client ID is not a secret. The extension ID is pinned by the `key` in `manifest.json`, so this redirect URI is the same for everyone in every browser. Don't change the key, or every install's ID (and its stored data) changes.
 
-**Releasing.**
-1. Bump `version` in `manifest.json` and add a section to `CHANGELOG.md`.
-2. Run `./scripts/build-release.sh` on macOS/Linux (on Windows, use Git Bash or WSL). It writes `dist/remember-tabs-v<version>.zip`.
-3. Commit, push, then open GitHub → **Releases → Draft a new release**, create a tag `v<version>`, paste the changelog section, and attach the zip.
+**Day-to-day work.** Pushing to `main` is safe. Colleagues only ever download releases, never `main`. Note each change under `## Unreleased` in `CHANGELOG.md` as you go.
+
+**Publishing a stable version.**
+1. In `CHANGELOG.md`, rename `## Unreleased` to `## vX.Y.Z (YYYY-MM-DD)`, and add a fresh empty `## Unreleased` above it.
+2. Set `"version": "X.Y.Z"` in `manifest.json` (no `v`).
+3. Commit and push.
+4. Create and push the tag `vX.Y.Z`. In a terminal: `git tag vX.Y.Z && git push origin vX.Y.Z`. In VS Code: Source Control **⋯ → Tags → Create Tag**, then **⋯ → Push** (with tags).
+
+GitHub Actions ([`.github/workflows/release.yml`](.github/workflows/release.yml)) then builds the zip, takes that version's notes from the changelog, adds the download/install instructions from [`.github/release-footer.md`](.github/release-footer.md), and publishes the release. Progress shows in the repo's **Actions** tab. The workflow refuses to publish if the tag and `manifest.json` disagree, or if the changelog has no section for that version.
+
+To try the zip locally: `./scripts/build-release.sh` (macOS/Linux; on Windows, use Git Bash or WSL).
 
 Release files (`dist/`, `releases/`, `*.zip`, `*.crx`, `*.pem`) are git-ignored on purpose. Don't publish `.crx` files: Chrome/Edge/Brave won't install them from outside their stores, and a `.pem` is a private signing key.
 
