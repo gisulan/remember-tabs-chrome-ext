@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Remember Tabs",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Remembers your last session and keeps a library of tab groups you can close and reopen anytime.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtGaU1RUhqePi8cIhrDd4hL2070rDW9FLnbHIy9tyFyx7jvoQqBtSRR89DPOYbc/qlwCRzykvria87HNjF6fi2CStxIKnnaQgZanfs1uib9RDoVd2vc/HLHXLaxml+VQrL4X9QceXMcLeuI2/WpWaaD4oCdq8SmVdM0P5r773Ou4bb37ymcWfBVZdNL1Wsi/Eo/+a2u7eA69LyQoVq9kWUgE0KMWk1r4ZEtSi0OxMuSO1AgRCy5Z/WJpPGwh0qg7t1Z3vgpu81UW7qm+aCAwgB6EdcCm9EQUVfXJVZWRflG5FltNSOCAdk8BkZaEDbAw6OpPJot4KbySdPGDy456RLwIDAQAB",
   "minimum_chrome_version": "116",

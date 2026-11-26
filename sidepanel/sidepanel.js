@@ -6,6 +6,7 @@ import {
   getConfig, setConfig, getStatus, signIn, signOut, runBackup, listBackups, downloadBackup,
   redirectUri, defaultDevice, backupFileName,
 } from '../lib/onedrive.js';
+import { SHARED_CLIENT_ID } from '../lib/config.js';
 
 const $ = (s) => document.querySelector(s);
 const main = $('#main');
@@ -275,7 +276,11 @@ async function cloudAction(action) {
 function cloudSetupDialog() {
   const cfg = state.cloud.config;
   const uri = redirectUri();
-  const clientInput = h('input', { type: 'text', value: cfg.clientId || '', placeholder: '00000000-0000-0000-0000-000000000000', id: 'cid' });
+  const clientInput = h('input', {
+    type: 'text', id: 'cid',
+    value: cfg.usingShared ? '' : (cfg.clientId || ''),
+    placeholder: SHARED_CLIENT_ID ? 'Leave empty to use the shared app' : '00000000-0000-0000-0000-000000000000',
+  });
   const tenantSel = h('select', { id: 'tenant' },
     [['common', 'Personal and work/school accounts'], ['consumers', 'Personal accounts only'], ['organizations', 'Work/school accounts only']]
       .map(([v, l]) => h('option', { value: v, selected: (cfg.tenant || 'common') === v }, l)));
@@ -285,7 +290,9 @@ function cloudSetupDialog() {
 
   const form = h('form', { method: 'dialog' },
     h('h3', {}, 'Set up OneDrive backup'),
-    h('p', {}, 'You need to do this once: register a free app with Microsoft so the extension can sign in.'),
+    h('p', {}, SHARED_CLIENT_ID
+      ? 'This copy already includes a shared Microsoft app, so you can just sign in. Only follow these steps if you want to use your own app registration instead.'
+      : 'You need to do this once: register a free app with Microsoft so the extension can sign in.'),
     h('ol', {},
       h('li', {}, 'Open ', link('https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/CreateApplicationBlade', 'Microsoft Entra › App registrations › New registration'), ' and sign in with your Microsoft account.'),
       h('li', {}, 'Name it anything, e.g. ', h('code', {}, 'Remember Tabs'), '.'),
@@ -311,12 +318,13 @@ function cloudSetupDialog() {
       await choose('Check the client ID', 'It should look like 1a2b3c4d-1234-5678-9abc-1234567890ab.', [['ok', 'OK']]);
       return cloudSetupDialog();
     }
-    const changed = clientId !== cfg.clientId || tenantSel.value !== (cfg.tenant || 'common');
     await setConfig({ clientId, tenant: tenantSel.value, device: deviceInput.value.trim() || defaultDevice() });
+    const next = await getConfig();
+    const changed = next.clientId !== cfg.clientId || next.tenant !== cfg.tenant;
     if (changed) await signOut();
     state.cloud = { ...state.cloud, config: await getConfig(), account: changed ? null : state.cloud.account };
     renderCloudStatus();
-    if (clientId && (changed || !state.cloud.account)) {
+    if (next.clientId && (changed || !state.cloud.account)) {
       const c = await choose('Saved', 'Sign in with Microsoft now to start backing up?', [['signin', 'Sign in'], ['later', 'Later', '']]);
       if (c === 'signin') cloudAction('signin');
     }

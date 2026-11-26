@@ -1,66 +1,96 @@
 # Remember Tabs
 
-A side-panel extension for Chromium browsers (Edge, Brave, Chrome) that:
+A browser extension for **Edge, Brave and Chrome** that remembers your tabs and tab groups.
 
-- **Remembers your last session.** It keeps saving your open windows, tabs and groups. After a browser or computer restart, everything appears under **Last session**. You can restore all of it, one window, one group, or single tabs. Nothing reopens automatically. The last 10 sessions are kept.
-- **Keeps a library of groups.** Save an open group to free memory. It asks before closing the tabs. Reopen the group later with one click; it stays in the library. You can add tabs to a saved group without opening it.
-- **Restores lazily.** Restored tabs go to sleep right away and load only when you click them. There's a toggle at the bottom of the panel.
-- **Search** covers open tabs, the library and the last session.
-- **Duplicates** are exact-URL matches. You're warned whenever you add a page that's already in any saved group. Duplicates are labeled in the library, and pages open twice in a window are labeled too.
-- **Drag and drop** reorders groups, and tabs within or between groups, in the Library.
-- **Export / Import** saves your library and session history as a JSON backup, which you can also use to move data between browsers.
-- **OneDrive backup** runs automatically, a minute after any library change and hourly otherwise. It works with a personal Microsoft account, or a work account if your company allows it. The status line at the bottom of the panel always shows whether it's working.
+- **Last session:** after the browser or computer restarts, everything you had open is listed, ready to reopen. You can reopen all of it, one window, one group, or single tabs. Nothing reopens on its own.
+- **Library:** save a tab group to free up memory and reopen it whenever you need it. You can add pages to a saved group without opening it.
+- **Light on memory:** reopened tabs stay asleep until you click them.
+- **Search, duplicate warnings, drag-and-drop sorting.**
+- **OneDrive backup**, so a browser reset doesn't lose your groups.
 
-## Set up OneDrive backup (once)
+Everything lives in a side panel: click the extension's icon to open it.
 
-The extension needs a free app registration with Microsoft so it can sign in.
+---
 
-1. Go to <https://entra.microsoft.com> → **App registrations** → **New registration** and sign in with your Microsoft account.
-2. **Name:** anything, e.g. `Remember Tabs`.
-3. **Supported account types:** *Accounts in any organizational directory and personal Microsoft accounts*.
-4. **Redirect URI:** platform **Single-page application (SPA)**, value:
-   `https://kgmhblgkcigcgldgkchbabickejefhea.chromiumapp.org/`
-   This is the same in Edge, Brave and Chrome, because the manifest pins the extension ID.
-5. Click **Register**, then copy the **Application (client) ID**.
-6. In the side panel, click the **OneDrive backup** line at the bottom → paste the ID → **Save** → **Sign in with Microsoft**.
+## Install
 
-You don't need to add API permissions in Azure. The extension asks for `Files.ReadWrite.AppFolder`, `User.Read` and `offline_access` when you sign in. It can only touch its own folder: **OneDrive › Apps › (app name)**. Each browser writes its own file (`backup-edge-on-macos.json`, `backup-brave-…`), so browsers never overwrite each other. **Restore…** lets you pull any of them into any browser.
+It takes about 2 minutes, and you only do it once per browser.
 
-Sign-in renewal: Microsoft limits single-page-app sign-ins to about 24 hours. After that the extension tries to renew silently using your Microsoft login in the browser. If that fails, the status line turns yellow ("sign in again").
+1. Download **`remember-tabs-vX.Y.Z.zip`** from the [latest release](../../releases/latest).
+2. Unzip it and move the `remember-tabs` folder somewhere permanent, such as `Documents/remember-tabs`.
+   ⚠️ The browser runs the extension from this folder. If you delete or move the folder, the extension stops working.
+3. Open your browser's extensions page:
 
-## Install (unpacked)
+   | Browser | Address |
+   |---|---|
+   | Edge | `edge://extensions` |
+   | Brave | `brave://extensions` |
+   | Chrome | `chrome://extensions` |
 
-Do this once in each browser:
+4. Turn on **Developer mode** (a toggle at the top right in Chrome/Brave, or the left sidebar in Edge).
+5. Click **Load unpacked** and select the `remember-tabs` folder (the one that contains `manifest.json`).
+6. Pin it: click the puzzle-piece icon in the toolbar, then the pin next to **Remember Tabs**.
+7. Click the icon to open the side panel.
 
-| Browser | Extensions page |
+> Edge or Chrome may show a "developer mode extensions" warning at startup. That's expected for extensions installed this way, so dismiss it.
+
+## Turn on OneDrive backup (recommended)
+
+Click the **OneDrive backup** line at the bottom of the panel, then **Sign in with Microsoft**.
+
+- **Personal Microsoft accounts** (outlook.com, hotmail.com, live.com) work right away.
+- **Work accounts** may show "Need admin approval", depending on company settings. If so, use a personal account.
+- Backups go to **your own** OneDrive, in `Apps › Remember Tabs`. Nobody else can see them.
+- When the line shows a green dot, backups are working. Yellow means sign in again; red means click it for details.
+
+To move your groups to another browser or computer, install the extension there, sign in, and click **Restore…**.
+
+## Update to a new version
+
+1. Download the new zip from [Releases](../../releases/latest).
+2. Replace the **contents** of your existing `remember-tabs` folder with the new files.
+3. On the extensions page, click the **reload ↻** icon on the Remember Tabs card.
+
+Your saved groups and sessions are kept. **Don't** click *Remove* to update: removing the extension deletes its local data. If you ever do need to remove it, back up first, either through OneDrive (**Back up now**) or with **Library › Export**.
+
+## Tips
+
+- **Save a group:** in *Open now*, click **Save** on a group. You'll be asked whether to close its tabs.
+- **Add a page to a saved group without opening the group:** click **+** on the tab, or **+** on the saved group to add the current tab.
+- **Reorder:** drag groups and pages in the *Library*.
+- **The toggle at the bottom** controls whether reopened tabs load right away or wait until clicked.
+- **Not saved:** incognito/InPrivate windows, new-tab pages and blank pages.
+
+## Troubleshooting
+
+| Problem | Fix |
 |---|---|
-| Edge | `edge://extensions` |
-| Brave | `brave://extensions` |
-| Chrome | `chrome://extensions` |
+| "Load unpacked" is missing | Developer mode is off, or your browser policy blocks it. |
+| Clicking the icon doesn't open the panel | Update the browser (version 116 or newer is required). |
+| OneDrive: "Need admin approval" | Your company blocks the app for work accounts. Sign in with a personal Microsoft account. |
+| OneDrive asks to sign in again often | Microsoft limits this kind of sign-in to about 24h. The extension renews it silently when it can. Click the status line to sign in again. |
 
-1. Open the extensions page and turn on **Developer mode**.
-2. Click **Load unpacked** and select this folder.
-3. Pin the extension, then click its icon to open the side panel.
+---
 
-After you change the code, click the reload icon on the extension's card.
+## For maintainers
 
-## Notes and limits
+**Shared OneDrive app.** For colleagues to sign in without registering their own app, `lib/config.js` must contain the Application (client) ID of an app registration set up like this:
+- Supported account types: *Accounts in any organizational directory and personal Microsoft accounts*.
+- Platform **Single-page application**, with the redirect URI `https://kgmhblgkcigcgldgkchbabickejefhea.chromiumapp.org/`.
 
-- Each browser keeps its own library. Use OneDrive **Restore…** or Export/Import to copy one into another.
-- Incognito/InPrivate windows, new-tab pages and blank pages aren't saved.
-- If your company's policy clears site data when the browser closes, extension storage may be wiped too. OneDrive backup protects you from that. Use **Restore…** after a wipe.
-- Edge's own sleeping tabs feature works alongside this extension.
+The client ID is not a secret. The extension ID is pinned by the `key` in `manifest.json`, so this redirect URI is the same for everyone in every browser. Don't change the key, or every install's ID (and its stored data) changes.
 
-## Roadmap
+**Releasing.**
+1. Bump `version` in `manifest.json` and add a section to `CHANGELOG.md`.
+2. Run `./scripts/build-release.sh`. It writes `dist/remember-tabs-v<version>.zip`.
+3. Commit, push, then open GitHub → **Releases → Draft a new release**, create a tag `v<version>`, paste the changelog section, and attach the zip.
 
-1. Google Drive as an alternative backup target.
-2. A full-page manager if the side panel gets cramped.
-3. Optional: a right-click "Add page to saved group" menu, and a keyboard shortcut.
+Release files (`dist/`, `releases/`, `*.zip`, `*.crx`, `*.pem`) are git-ignored on purpose. Don't publish `.crx` files: Chrome/Edge/Brave won't install them from outside their stores, and a `.pem` is a private signing key.
 
-## Files
-
-- `background.js`: snapshots the session and moves it to history at browser startup
+**Code layout.**
+- `background.js`: session snapshots, startup rotation, backup scheduling
 - `lib/common.js`: storage and session capture
 - `lib/restore.js`: reopening tabs and groups, lazy sleeping
-- `lib/onedrive.js`: Microsoft sign-in (PKCE), Graph upload, list and download
+- `lib/onedrive.js`: Microsoft sign-in (PKCE) and Graph backup
+- `lib/config.js`: the shared app ID
 - `sidepanel/`: the UI
