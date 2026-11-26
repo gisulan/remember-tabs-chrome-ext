@@ -92,13 +92,12 @@ The client ID is not a secret. The extension ID is pinned by the `key` in `manif
 
 **Day-to-day work.** Pushing to `main` is safe. Colleagues only ever download releases, never `main`. Note each change under `## Unreleased` in `CHANGELOG.md` as you go.
 
-**Publishing a stable version.**
-1. In `CHANGELOG.md`, rename `## Unreleased` to `## vX.Y.Z (YYYY-MM-DD)`, and add a fresh empty `## Unreleased` above it.
-2. Set `"version": "X.Y.Z"` in `manifest.json` (no `v`).
-3. Commit and push.
-4. Create and push the tag `vX.Y.Z`. In a terminal: `git tag vX.Y.Z && git push origin vX.Y.Z`. In VS Code: Source Control **⋯ → Tags → Create Tag**, then **⋯ → Push** (with tags).
+**Publishing a stable version** (all on github.com):
+1. Edit `CHANGELOG.md`: rename `## Unreleased` to `## vX.Y.Z (YYYY-MM-DD)`, and add a fresh empty `## Unreleased` above it.
+2. Edit `manifest.json`: set `"version": "X.Y.Z"` (no `v`). Commit both changes to `main`.
+3. Go to the **Actions** tab → **Release** (left sidebar) → **Run workflow** → branch `main` → **Run workflow**.
 
-GitHub Actions ([`.github/workflows/release.yml`](.github/workflows/release.yml)) then builds the zip, takes that version's notes from the changelog, adds the download/install instructions from [`.github/release-footer.md`](.github/release-footer.md), and publishes the release. Progress shows in the repo's **Actions** tab. The workflow refuses to publish if the tag and `manifest.json` disagree, or if the changelog has no section for that version.
+The workflow ([`.github/workflows/release.yml`](.github/workflows/release.yml)) creates the `vX.Y.Z` tag, builds the zip, takes that version's notes from the changelog, adds the download/install instructions from [`.github/release-footer.md`](.github/release-footer.md), and publishes the release. It takes about a minute. It refuses to publish if that version was already released, or if the changelog has no section for it. (Pushing a `vX.Y.Z` tag from git works too.)
 
 To try the zip locally: `./scripts/build-release.sh` (macOS/Linux; on Windows, use Git Bash or WSL).
 

@@ -1,9 +1,13 @@
-# Publishes a GitHub Release when a version tag (e.g. v1.2.0) is pushed.
-# The release gets the zip built by scripts/build-release.sh and the notes
-# from that version's section of CHANGELOG.md.
+# Publishes a GitHub Release with the extension zip and notes from CHANGELOG.md.
+#
+# Two ways to start it:
+#  - On github.com: Actions tab → "Release" → "Run workflow" (branch: main).
+#    It releases the version in manifest.json and creates the vX.Y.Z tag itself.
+#  - Pushing a vX.Y.Z tag from git.
 name: Release
 
 on:
+  workflow_dispatch:
   push:
     tags: ['v*.*.*']
 
@@ -16,31 +20,52 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check the tag matches manifest.json
+      - name: Work out the version
         run: |
           VERSION=$(jq -r .version manifest.json)
-          if [ "v$VERSION" != "$GITHUB_REF_NAME" ]; then
-            echo "::error::Tag is $GITHUB_REF_NAME but manifest.json version is $VERSION. Bump the version or fix the tag."
-            exit 1
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            TAG="v$VERSION"
+            if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
+              echo "::error::$TAG is already released. Bump \"version\" in manifest.json and add a '## v<new version>' section to CHANGELOG.md first."
+              exit 1
+            fi
+          else
+            TAG="$GITHUB_REF_NAME"
+            if [ "v$VERSION" != "$TAG" ]; then
+              echo "::error::Tag is $TAG but manifest.json version is $VERSION. Bump the version or fix the tag."
+              exit 1
+            fi
           fi
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
 
       - name: Build the extension zip
         run: ./scripts/build-release.sh
 
       - name: Write release notes from CHANGELOG.md
         run: |
-          awk -v tag="$GITHUB_REF_NAME" '$1=="##" { if (found) exit; if ($2==tag) { found=1; next } } found' CHANGELOG.md > notes.md
+          awk -v tag="$TAG" '$1=="##" { if (found) exit; if ($2==tag) { found=1; next } } found' CHANGELOG.md > notes.md
           if [ -z "$(tr -d '[:space:]' < notes.md)" ]; then
-            echo "::error::CHANGELOG.md has no '## $GITHUB_REF_NAME' section."
+            echo "::error::CHANGELOG.md has no '## $TAG' section. Add one describing this version."
             exit 1
           fi
-          sed "s/{{VERSION}}/${GITHUB_REF_NAME#v}/g" .github/release-footer.md >> notes.md
+          sed "s/{{VERSION}}/${TAG#v}/g" .github/release-footer.md >> notes.md
 
       - name: Publish the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" "dist/remember-tabs-$GITHUB_REF_NAME.zip" \
-            --title "Remember Tabs $GITHUB_REF_NAME" \
-            --notes-file notes.md \
-            --verify-tag
+          ZIP="dist/remember-tabs-$TAG.zip"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            # Release was already created by hand on github.com: just attach the zip,
+            # and fill in the notes if its description was left empty.
+            gh release upload "$TAG" "$ZIP" --clobber
+            if [ -z "$(gh release view "$TAG" --json body -q .body | tr -d '[:space:]')" ]; then
+              gh release edit "$TAG" --notes-file notes.md
+            fi
+          else
+            gh release create "$TAG" "$ZIP" \
+              --title "Remember Tabs $TAG" \
+              --notes-file notes.md \
+              --target "$GITHUB_SHA"
+          fi
+          echo "Published: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$TAG"
