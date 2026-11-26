@@ -19,6 +19,7 @@ It takes about 2 minutes, and you only do it once per browser.
 1. Download **`remember-tabs-vX.Y.Z.zip`** from the [latest release](../../releases/latest).
 2. Unzip it and move the `remember-tabs` folder somewhere permanent, such as `Documents/remember-tabs`.
    ⚠️ The browser runs the extension from this folder. If you delete or move the folder, the extension stops working.
+   **Windows:** right-click the zip → **Extract All**. You can't load it straight from the zip. Extracting creates `remember-tabs-v1.0.0\remember-tabs\`. Use the inner `remember-tabs` folder, the one with `manifest.json` in it.
 3. Open your browser's extensions page:
 
    | Browser | Address |
@@ -65,7 +66,8 @@ Your saved groups and sessions are kept. **Don't** click *Remove* to update: rem
 
 | Problem | Fix |
 |---|---|
-| "Load unpacked" is missing | Developer mode is off, or your browser policy blocks it. |
+| "Load unpacked" is missing | Developer mode is off, or your browser policy blocks it. Company-managed Windows PCs often lock this. Ask IT, or check `edge://policy` / `chrome://policy` for `DeveloperToolsAvailability` or `ExtensionInstallBlocklist`. |
+| "Manifest file is missing or unreadable" | You selected the outer folder. Pick the folder that directly contains `manifest.json`. |
 | Clicking the icon doesn't open the panel | Update the browser (version 116 or newer is required). |
 | OneDrive: "Need admin approval" | Your company blocks the app for work accounts. Sign in with a personal Microsoft account. |
 | OneDrive asks to sign in again often | Microsoft limits this kind of sign-in to about 24h. The extension renews it silently when it can. Click the status line to sign in again. |
@@ -82,7 +84,7 @@ The client ID is not a secret. The extension ID is pinned by the `key` in `manif
 
 **Releasing.**
 1. Bump `version` in `manifest.json` and add a section to `CHANGELOG.md`.
-2. Run `./scripts/build-release.sh`. It writes `dist/remember-tabs-v<version>.zip`.
+2. Run `./scripts/build-release.sh` on macOS/Linux (on Windows, use Git Bash or WSL). It writes `dist/remember-tabs-v<version>.zip`.
 3. Commit, push, then open GitHub → **Releases → Draft a new release**, create a tag `v<version>`, paste the changelog section, and attach the zip.
 
 Release files (`dist/`, `releases/`, `*.zip`, `*.crx`, `*.pem`) are git-ignored on purpose. Don't publish `.crx` files: Chrome/Edge/Brave won't install them from outside their stores, and a `.pem` is a private signing key.
