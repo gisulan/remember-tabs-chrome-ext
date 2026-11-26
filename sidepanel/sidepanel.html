@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Remember Tabs</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <header>
+    <input id="search" type="search" placeholder="Search tabs and groups…" autocomplete="off">
+    <nav id="views">
+      <button data-view="open">Open now</button>
+      <button data-view="library">Library</button>
+      <button data-view="last">Last session</button>
+    </nav>
+  </header>
+  <main id="main"></main>
+  <footer>
+    <button id="cloud" class="cloud" title="OneDrive backup"></button>
+    <label><input type="checkbox" id="lazy"> Load restored tabs only when clicked</label>
+  </footer>
+  <dialog id="modal"></dialog>
+  <input type="file" id="importFile" accept="application/json,.json" hidden>
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>
